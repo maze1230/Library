@@ -14,8 +14,8 @@
 #include <cstring>
 using namespace std;
 
-#define INF_LL (ll)1e18
-#define INF (int)1e9
+#define INF_LL (int64)1e18
+#define INF (int32)1e9
 #define REP(i, n) for(int i = 0;i < (n);i++)
 #define FOR(i, a, b) for(int i = (a);i < (b);i++)
 #define all(x) x.begin(),x.end()

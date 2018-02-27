@@ -26,9 +26,10 @@ const int32 UNDIRECTED = 1;
 template<int32 isUNDIRECTED=0>
 class Graph{
 	struct Edge{
-		int32 u, v, id;
-		int64 c;
-		Edge(int32 u, int32 v, int64 c=0, int32 id=0):u(u), v(v), c(c), id(id){}
+		int32 u, v;
+		//id;
+		//int32 c;
+		Edge(int32 u, int32 v, int32 c=0, int32 id=0):u(u), v(v){}
 	};
 
 	int32 V, E;
@@ -39,10 +40,10 @@ public:
 	Graph(int32 V):V(V){G.resize(V);}
 	Graph(const Graph<isUNDIRECTED>& g):V(g.V), E(g.E), G(g.G), Es(g.Es){}
 
-	void add_edge(int32 u, int32 v, int64 c=0, int32 id=0){
-		G[u].emplace_back(u, v, c, id);
+	void add_edge(int32 u, int32 v, int32 c=0, int32 id=0){
+		G[u].emplace_back(u, v);
 		if(isUNDIRECTED) G[v].emplace_back(v, u, c, id);
-		Es.emplace_back(u, v, c, id);
+		//Es.emplace_back(u, v, c, id);
 		E++;
 	}
 
@@ -103,7 +104,7 @@ public:
 		for(int32 i = 0;i < V;i++){
 			for(auto e : orgG[i]){
 				if(comp[i] != comp[e.v])
-					newG.add_edge(comp[i], comp[e.v], e.c);
+					newG.add_edge(comp[i], comp[e.v]);
 			}
 		}
 		return k;
@@ -164,4 +165,24 @@ public:
 int main(void){
 	cin.tie(0);
 	ios::sync_with_stdio(false);
+
+	int32 N, M;
+	cin >> N >> M;
+	vector<PII> wall;
+	wall.resize(N);
+	REP(i, N)
+		cin >> wall[i].fs >> wall[i].sc;
+	TwoSAT scc(N);
+	REP(i, N){
+		REP(j N){
+			if(i == j) continue;
+			PII rw1(M-wall[i].sc-1, M-wall[i].fs-1), rw2(M-wall[j].sc-1, M-wall[j].fs-1);
+			if(!(max(wall[i].sc, wall[j].sc) < min(wall[i].fs, wall[j].fs))) scc.add_state(i, 0, j, 0);
+			if(!(max(wall[i].sc, rw2.sc) < min(wall[i].fs, rw2.fs))) scc.add_state(i, 0, j, 1);
+		}
+	}
+	if(scc.build())
+		cout << "YES" << endl;
+	else
+		cout << "NO" << endl;
 }

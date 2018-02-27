@@ -1,16 +1,19 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define INF_LL (ll)1e18
-#define INF (int)1e9
+#define INF_LL (int64)1e18
+#define INF (int32)1e9
 #define REP(i, n) for(int i = 0;i < (n);i++)
 #define FOR(i, a, b) for(int i = (a);i < (b);i++)
 #define all(x) x.begin(),x.end()
 #define fs first
 #define sc second
-using ll = long long;
-using PII = pair<int, int>;
-using PLL = pair<ll, ll>;
+using int32 = int_fast32_t;
+using uint32 = uint_fast32_t;
+using int64 = int_fast64_t;
+using uint64 = uint_fast64_t;
+using PII = pair<int32, int32>;
+using PLL = pair<int64, int64>;
 
 const double eps = 1e-10;
 
@@ -19,21 +22,21 @@ template<typename A, typename B>inline void chmax(A &a, B b){if(a < b) a = b;}
 
 class RMQ{
 private:
-	int n;
-	vector<ll> node, lazy;
+	int32 n;
+	vector<int64> node, lazy;
 	vector<bool> lazyFlag;
 public:
-	RMQ(vector<ll> v){
+	RMQ(vector<int64> v){
 		int sz = v.size();
 		n = 1; while(n < sz) n *= 2;
 		node.resize(2*n-1, INF_LL);
 		lazy.resize(2*n-1, 0);
 		lazyFlag.resize(2*n-1, false);
-		REP(i, sz) node[i+n-1] = v[i];
-		for(int i = n-2;i >= 0;i--) node[i] = min(node[2*i+1], node[2*i+2]);
+		for(int32 i = 0;i < sz;i++) node[i+n-1] = v[i];
+		for(int32 i = n-2;i >= 0;i--) node[i] = min(node[2*i+1], node[2*i+2]);
 	}
 
-	void eval(int k, int l, int r){
+	void eval(int32 k, int32 l, int32 r){
 		if(lazyFlag[k]){
 			node[k] = lazy[k];
 			if(r-l > 1){
@@ -46,7 +49,7 @@ public:
 		}
 	}
 
-	void update(int a, int b, ll x, int k=0, int l=0, int r=-1){
+	void update(int32 a, int32 b, int64 x, int32 k=0, int32 l=0, int32 r=-1){
 		if(r < 0) r = n;
 		eval(k, l, r);
 		if(b <= l || r <= a) return;
@@ -62,7 +65,7 @@ public:
 		}
 	}
 
-	ll query(int a, int b, int k=0, int l=0, int r=-1){
+	int64 query(int32 a, int32 b, int32 k=0, int32 l=0, int32 r=-1){
 		if(r < 0) r = n;
 		eval(k, l, r);
 
@@ -75,21 +78,21 @@ public:
 
 class LazySegTree{
 private:
-	int n;
-	vector<ll> node, lazy;
+	int32 n;
+	vector<int64> node, lazy;
 	vector<bool> lazyFlag;
 public:
-	LazySegTree(const vector<ll>& v){
-		int sz = v.size();
+	LazySegTree(const vector<int64>& v){
+		int32 sz = v.size();
 		n = 1; while(n < sz) n *= 2;
 		node.resize(2*n-1, 0);
 		lazy.resize(2*n-1, 0);
 		lazyFlag.resize(2*n-1, false);
-		REP(i, sz) node[i+n-1] = v[i];
-		for(int i = n-2;i >= 0;i--) node[i] = node[2*i+1]+node[2*i+2];
+		for(int32 i = 0;i < sz;i++) node[i+n-1] = v[i];
+		for(int32 i = n-2;i >= 0;i--) node[i] = node[2*i+1]+node[2*i+2];
 	}
 
-	void eval(int k, int l, int r){
+	void eval(int32 k, int32 l, int32 r){
 		if(lazyFlag[k]){
 			node[k] += lazy[k] * (r-l);
 			if(r-l > 1){
@@ -102,7 +105,7 @@ public:
 		}
 	}
 
-	void add(int a, int b, ll x, int k=0, int l=0, int r=-1){
+	void add(int32 a, int32 b, int64 x, int32 k=0, int32 l=0, int32 r=-1){
 		if(r < 0) r = n;
 		eval(k, l, r);
 		if(b <= l || r <= a) return;
@@ -118,7 +121,7 @@ public:
 		}
 	}
 
-	ll query(int a, int b, int k=0, int l=0, int r=-1){
+	int64 query(int32 a, int32 b, int32 k=0, int32 l=0, int32 r=-1){
 		if(r < 0) r = n;
 		eval(k, l, r);
 
