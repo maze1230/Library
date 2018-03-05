@@ -27,7 +27,7 @@ private:
 	const int64 mod = 1e9+7;
 	mat m;
 public:
-	uint32 col=-1, row=-1;
+	uint32 col=0, row=0;
 	Matrix(){}
 	Matrix(mat&& m):m(m){ row = m.size(); col = m[0].size(); }
 	Matrix(Matrix<T>&& rhs){ m = rhs.m; row = rhs.row; col = rhs.col;}
@@ -98,7 +98,7 @@ public:
 
 template<typename T>
 istream& operator>>(istream& is, Matrix<T>& m){
-	if(m.row == -1 || m.col == -1){
+	if(m.row == 0 || m.col == 0){
 		cerr << "The matrix is not available." << endl;
 		return is;
 	}
@@ -108,7 +108,7 @@ istream& operator>>(istream& is, Matrix<T>& m){
 
 template<typename T>
 ostream& operator<<(ostream&os, const Matrix<T>& m){
-	if(m.row == -1 || m.col == -1){
+	if(m.row == 0 || m.col == 0){
 		cerr << "The matrix is not available." << endl;
 		return os;
 	}
