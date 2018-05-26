@@ -49,6 +49,25 @@ public:
 	const vector<Edge>& operator[](int32 k){
 		return G[k];
 	}
+
+	int64 dijkstra(int64 s, int64 t){
+		vector<int64> d(V, INF_LL);
+		d[s] = 0;
+		priority_queue<PLL, vector<PLL>, greater<PLL>> pq;
+		pq.push({0, s});
+		while(pq.size()){
+			int64 v, dd;
+			tie(dd, v) = pq.top(); pq.pop();
+			if(dd > d[v]) continue;
+			REP(i, G[v].size()){
+				if(d[G[v][i].v] > d[v]+G[v][i].c){
+					d[G[v][i].v] = d[v]+G[v][i].c;
+					pq.push({d[G[v][i].v], G[v][i].v});
+				}
+			}
+		}
+		return d[t];
+	}
 };
 
 int main(void){
