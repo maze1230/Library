@@ -20,115 +20,122 @@ const double eps = 1e-10;
 template<typename A, typename B>inline void chmin(A &a, B b){if(a > b) a = b;}
 template<typename A, typename B>inline void chmax(A &a, B b){if(a < b) a = b;}
 
-class RMQ{
+template<typename T, typename E>
+class SegTree{
 private:
+	using F = function<T(T, T)>;
+	using G = function<T(T, E)>;
 	int32 n;
-	vector<int64> node, lazy;
-	vector<bool> lazyFlag;
+	F f;
+	G g;
+	T ti; // e0:F
+	vector<T> node;
 public:
-	RMQ(vector<int64> v){
-		int sz = v.size();
-		n = 1; while(n < sz) n *= 2;
-		node.resize(2*n-1, INF_LL);
-		lazy.resize(2*n-1, 0);
-		lazyFlag.resize(2*n-1, false);
-		for(int32 i = 0;i < sz;i++) node[i+n-1] = v[i];
-		for(int32 i = n-2;i >= 0;i--) node[i] = min(node[2*i+1], node[2*i+2]);
+	SegTree(int32 _n, F f, G g, T ti):f(f), g(g), ti(ti){
+		init(_n);
+	}
+	SegTree(vector<T> v, F f, G g, T ti):f(f), g(g), ti(ti){
+		init(v.size());
+		for(int32 i = 0;i < v.size();i++) node[i+n-1] = v[i];
+		for(int32 i = n-2;i >= 0;i--) merge(i);
 	}
 
-	void eval(int32 k, int32 l, int32 r){
-		if(lazyFlag[k]){
-			node[k] = lazy[k];
-			if(r-l > 1){
-				lazy[2*k+1] = lazy[k];
-				lazy[2*k+2] = lazy[k];
-				lazyFlag[2*k+1] = lazyFlag[2*k+2] = true;
-			}
-			lazy[k] = 0;
-			lazyFlag[k] = false;
+	inline void init(int32 _n){
+		n = 1;
+		while(n < _n) n *= 2;
+		node.resize(2*n-1, ti);
+	}
+
+	inline void merge(int32 k){
+		if(node[k*2+1] == ti) node[k] = node[k*2+2];
+		else if(node[k*2+2] == ti) node[k] = node[k*2+1];
+		else node[k] = f(node[k*2+1], node[k*2+2]);
+	}
+
+	void update(int32 k, E x){
+		k += n-1;
+		node[k] = g(node[k], x);
+		while(k){
+			k = (k-1)/2;
+			merge(k);
 		}
 	}
 
-	void update(int32 a, int32 b, int64 x, int32 k=0, int32 l=0, int32 r=-1){
+	T query(int32 a, int32 b, int32 k=0, int32 l=0, int32 r=-1){
 		if(r < 0) r = n;
-		eval(k, l, r);
-		if(b <= l || r <= a) return;
-
-		if(a <= l && r <= b){
-			lazy[k] = x;
-			lazyFlag[k] = true;
-			eval(k, l, r);
-		}else{
-			update(a, b, x, k*2+1, l, (l+r)/2);
-			update(a, b, x, k*2+2, (l+r)/2, r);
-			node[k] = min(node[k*2+1], node[k*2+2]);
-		}
-	}
-
-	int64 query(int32 a, int32 b, int32 k=0, int32 l=0, int32 r=-1){
-		if(r < 0) r = n;
-		eval(k, l, r);
-
-		if(b <= l || r <= a) return INF_LL;
+		if(b <= l || r <= a) return ti;
 		if(a <= l && r <= b) return node[k];
-
-		return min(query(a, b, k*2+1, l, (l+r)/2), query(a, b, k*2+2, (l+r)/2, r));
+		return f(query(a, b, k*2+1, l, (l+r)/2), query(a, b, k*2+2, (l+r)/2, r));
 	}
 };
 
+template<typename T, typename E>
 class LazySegTree{
 private:
+	using F = function<T(T, T)>;
+	using G = function<T(T, E)>;
+	using H = function<E(E, E)>;
+	using P = function<E(E, int64)>;
 	int32 n;
-	vector<int64> node, lazy;
-	vector<bool> lazyFlag;
+	vector<T> node;
+	vector<E> lazy;
+	F f;
+	G g;
+	H h;
+	P p;
+	T ti;
+	E ei;
 public:
-	LazySegTree(const vector<int64>& v){
-		int32 sz = v.size();
-		n = 1; while(n < sz) n *= 2;
-		node.resize(2*n-1, 0);
-		lazy.resize(2*n-1, 0);
-		lazyFlag.resize(2*n-1, false);
-		for(int32 i = 0;i < sz;i++) node[i+n-1] = v[i];
-		for(int32 i = n-2;i >= 0;i--) node[i] = node[2*i+1]+node[2*i+2];
+	LazySegTree(int32 _n, F f, G g, H h, T ti, E ei, P p = [](E a, int32 b){return a;}):f(f), g(g), h(h), p(p), ti(ti), ei(ei){
+		init(_n);
 	}
 
-	void eval(int32 k, int32 l, int32 r){
-		if(lazyFlag[k]){
-			node[k] += lazy[k] * (r-l);
-			if(r-l > 1){
-				lazy[2*k+1] += lazy[k];
-				lazy[2*k+2] += lazy[k];
-				lazyFlag[2*k+1] = lazyFlag[2*k+2] = true;
-			}
-			lazy[k] = 0;
-			lazyFlag[k] = false;
+	LazySegTree(vector<T> v, F f, G g, H h, T ti, E ei, P p = [](E a, int32 b){return a;}):f(f), g(g), h(h), p(p), ti(ti), ei(ei){
+		init(v.size());
+		for(int32 i = 0;i < v.size();i++) node[i+n-1] = v[i];
+		for(int32 i = n-2;i >= 0;i--) merge(i);
+	}
+
+	void init(int32 _n){
+		n = 1;
+		while(n < _n) n*=2;
+		node.resize(2*n-1, ti);
+		lazy.resize(2*n-1, ei);
+	}
+
+	inline void merge(int32 k){
+		if(node[k*2+1] == ti) node[k] = node[k*2+2];
+		else if(node[k*2+2] == ti) node[k] = node[k*2+1];
+		node[k] = f(node[k*2+2], node[k*2+1]);
+	}
+
+	inline void eval(int32 k, int32 l, int32 r){
+		if(lazy[k] == ei) return;
+		node[k] = g(node[k], p(lazy[k], r-l));
+		if(r-l > 1){
+			lazy[k*2+1] = h(lazy[k*2+1], lazy[k]);
+			lazy[k*2+2] = h(lazy[k*2+2], lazy[k]);
 		}
+		lazy[k] = ei;
 	}
 
-	void add(int32 a, int32 b, int64 x, int32 k=0, int32 l=0, int32 r=-1){
-		if(r < 0) r = n;
+	T update(int32 a, int32 b, E x, int32 k=0, int32 l=0, int32 r=-1){
+		if(r<0) r = n;
 		eval(k, l, r);
-		if(b <= l || r <= a) return;
-
+		if(b <= l || r <= a) return node[k];
 		if(a <= l && r <= b){
-			lazy[k] += x;
-			lazyFlag[k] = true;
-			eval(k, l, r);
-		}else{
-			add(a, b, x, k*2+1, l, (l+r)/2);
-			add(a, b, x, k*2+2, (l+r)/2, r);
-			node[k] = node[k*2+1] + node[k*2+2];
-		}
+			lazy[k] = h(lazy[k], x);
+			return g(node[k], p(lazy[k], r-l));
+	}
+		return node[k] = f(update(a, b, x, k*2+1, l, (l+r)/2), update(a, b, x, k*2+2, (l+r)/2, r));
 	}
 
-	int64 query(int32 a, int32 b, int32 k=0, int32 l=0, int32 r=-1){
-		if(r < 0) r = n;
+	T query(int32 a, int32 b, int32 k=0, int32 l=0, int32 r=-1){
+		if(r<0) r = n;
 		eval(k, l, r);
-
-		if(b <= l || r <= a) return 0;
+		if(b <= l || r <= a) return ti;
 		if(a <= l && r <= b) return node[k];
-
-		return query(a, b, k*2+1, l, (l+r)/2) + query(a, b, k*2+2, (l+r)/2, r);
+		return f(query(a, b, k*2+1, l, (l+r)/2), query(a, b, k*2+2, (l+r)/2, r));
 	}
 };
 
