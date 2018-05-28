@@ -20,13 +20,14 @@ const double eps = 1e-10;
 template<typename A, typename B>inline void chmin(A &a, B b){if(a > b) a = b;}
 template<typename A, typename B>inline void chmax(A &a, B b){if(a < b) a = b;}
 
-class Union_find{
+class UnionFind{
 private:
 	vector<int32> par;
 	int32 n;
 
 public:
-	Union_find(int32 n):n(n){
+	UnionFind(){}
+	UnionFind(int32 n):n(n){
 		par.resize(n, -1);
 	}
 
