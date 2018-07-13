@@ -24,13 +24,13 @@ template<typename A, typename B>inline void chmax(A &a, B b){if(a < b) a = b;}
 class HLDecomposition{
 private:
 	vector<vector<int32>> G;
-	vector<int32> vid, inv, dep, hvy, par, typ, sub, head;
+	vector<int32> vid, inv, dep, par, typ, sub, head, in, out;
 	int32 n, pos;
 public:
 	HLDecomposition(){}
 	HLDecomposition(int32 n):
-		n(n), pos(0), G(n), vid(n), inv(n), dep(n, -1),
-		hvy(n, -1), par(n), typ(n), sub(n, 1), head(n){}
+		n(n), pos(0), G(n), vid(n, -1), inv(n), dep(n, -1),
+		par(n), typ(n), sub(n, 1), head(n), in(n, -1), out(n, -1){}
 
 	void add_edge(int32 u, int32 v){
 		G[u].push_back(v);
@@ -42,7 +42,7 @@ public:
 		for(int32 i = 0;i < n;i++){
 			if(dep[i] == -1){
 				dfs(i);
-				bfs(i, type++);
+				dfs2(i, type++, i);
 			}
 		}
 	}
@@ -64,27 +64,30 @@ public:
 				st.emplace(u, 0);
 			}else{
 				st.pop();
-				for(int32 u : G[v]){
+				for(int32 &u : G[v]){
 					if(u == par[v]) continue;
 					sub[v] += sub[u];
-					if(hvy[v] == -1 || sub[u] > sub[hvy[v]]) hvy[v] = u;
+					if(G[v][0] == par[v] || sub[u] > sub[G[v][0]]){
+						swap(u, G[v][0]);
+					}
 				}
 			}
 		}
 	}
 
-	void bfs(int32 v, int32 t){
-		queue<int32> q({v});
-		while(q.size()){
-			v = q.front(); q.pop();
-			for(int32 i = v;i != -1;i=hvy[i]){
-				typ[i] = t;
-				vid[i] = pos++;
-				inv[vid[i]] = i;
-				head[i] = v;
-				for(int32 u : G[i])
-					if(u != par[i] && u != hvy[i]) q.push(u);
-			}
+	void dfs2(int32 v, int32 t, int32 h){
+		typ[v] = t;
+		in[v] = pos;
+		out[v] = in[v]+sub[v]-1;
+		vid[v] = pos++;
+		inv[vid[v]] = v;
+		head[v] = h;
+		for(int32 u : G[v]){
+			if(u == par[v]) continue;
+			if(u == G[v][0])
+				dfs2(u, t, h);
+			else
+				dfs2(u, t, u);
 		}
 	}
 
@@ -108,6 +111,14 @@ public:
 				break;
 			}
 		}
+	}
+
+	void for_subtree(int32 u, const function<void(int32, int32)>& f){
+		if(in[u] == -1){
+			cout << "Invalid vertex." << endl;
+			return;
+		}
+		f(in[u], out[u]);
 	}
 
 	int32 lca(int32 u, int32 v){
