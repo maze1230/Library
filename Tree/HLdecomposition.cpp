@@ -1,45 +1,24 @@
 #include <bits/stdc++.h>
-using namespace std;
-
-#define INF_LL (int64)1e18
-#define INF (int32)1e9
-#define REP(i, n) for(int64 i = 0;i < (n);i++)
-#define FOR(i, a, b) for(int64 i = (a);i < (b);i++)
-#define all(x) x.begin(),x.end()
-#define fs first
-#define sc second
-
-using int32 = int_fast32_t;
-using uint32 = uint_fast32_t;
-using int64 = int_fast64_t;
-using uint64 = uint_fast64_t;
-using PII = pair<int32, int32>;
-using PLL = pair<int64, int64>;
-
-const double eps = 1e-10;
-
-template<typename A, typename B>inline void chmin(A &a, B b){if(a > b) a = b;}
-template<typename A, typename B>inline void chmax(A &a, B b){if(a < b) a = b;}
 
 class HLDecomposition{
 private:
-	vector<vector<int32>> G;
-	vector<int32> vid, inv, dep, par, typ, sub, head, in, out;
-	int32 n, pos;
+	std::vector<std::vector<int_fast32_t>> G;
+	std::vector<int_fast32_t> vid, inv, dep, par, typ, sub, head, in, out;
+	size_t n, pos;
 public:
 	HLDecomposition(){}
-	HLDecomposition(int32 n):
+	HLDecomposition(size_t n):
 		n(n), pos(0), G(n), vid(n, -1), inv(n), dep(n, -1),
 		par(n), typ(n), sub(n, 1), head(n), in(n, -1), out(n, -1){}
 
-	void add_edge(int32 u, int32 v){
+	void add_edge(uint_fast32_t u, uint_fast32_t v){
 		G[u].push_back(v);
 		G[v].push_back(u);
 	}
 
 	void build(){
-		int32 type = 0;
-		for(int32 i = 0;i < n;i++){
+		uint_fast32_t type = 0;
+		for(int_fast32_t i = 0;i < n;i++){
 			if(dep[i] == -1){
 				dfs(i);
 				dfs2(i, type++, i);
@@ -47,42 +26,42 @@ public:
 		}
 	}
 
-	void dfs(int32 v){
-		using T = pair<int32, int32>;
+	void dfs(uint_fast32_t v){
+		using T = std::pair<uint_fast32_t, uint_fast32_t>;
 		dep[v] = 0;
 		par[v] = -1;
-		stack<T> st;
+		std::stack<T> st;
 		st.emplace(v, 0);
 		while(st.size()){
 			v = st.top().first;
-			int32 &i = st.top().second;
+			uint_fast32_t &i = st.top().second;
 			if(i<G[v].size()){
-				int32 u = G[v][i++];
+				uint_fast32_t u = G[v][i++];
 				if(u == par[v]) continue;
 				par[u] = v;
 				dep[u] = dep[v]+1;
 				st.emplace(u, 0);
 			}else{
 				st.pop();
-				for(int32 &u : G[v]){
+				for(int_fast32_t &u : G[v]){
 					if(u == par[v]) continue;
 					sub[v] += sub[u];
 					if(G[v][0] == par[v] || sub[u] > sub[G[v][0]]){
-						swap(u, G[v][0]);
+						std::swap(u, G[v][0]);
 					}
 				}
 			}
 		}
 	}
 
-	void dfs2(int32 v, int32 t, int32 h){
+	void dfs2(uint_fast32_t v, uint_fast32_t t, uint_fast32_t h){
 		typ[v] = t;
 		in[v] = pos;
 		out[v] = in[v]+sub[v]-1;
 		vid[v] = pos++;
 		inv[vid[v]] = v;
 		head[v] = h;
-		for(int32 u : G[v]){
+		for(uint_fast32_t u : G[v]){
 			if(u == par[v]) continue;
 			if(u == G[v][0])
 				dfs2(u, t, h);
@@ -91,18 +70,18 @@ public:
 		}
 	}
 
-	void for_each(int32 u, int32 v, const function<void(int32, int32)>& f){
+	void for_each(uint_fast32_t u, uint_fast32_t v, const std::function<void(uint_fast32_t, uint_fast32_t)>& f){
 		while(1){
-			if(vid[u] > vid[v]) swap(u, v);
-			f(max(vid[head[v]], vid[u]), vid[v]);
+			if(vid[u] > vid[v]) std::swap(u, v);
+			f(std::max(vid[head[v]], vid[u]), vid[v]);
 			if(head[u] != head[v]) v=par[head[v]];
 			else break;
 		}
 	}
 
-	void for_each_edge(int32 u, int32 v, const function<void(int32, int32)>& f){
+	void for_each_edge(uint_fast32_t u, uint_fast32_t v, const std::function<void(uint_fast32_t, uint_fast32_t)>& f){
 		while(1){
-			if(vid[u] > vid[v]) swap(u, v);
+			if(vid[u] > vid[v]) std::swap(u, v);
 			if(head[u] != head[v]){
 				f(vid[head[v]], vid[v]);
 				v = par[head[v]];
@@ -113,32 +92,53 @@ public:
 		}
 	}
 
-	void for_subtree(int32 u, const function<void(int32, int32)>& f){
+	void for_subtree(uint_fast32_t u, const std::function<void(uint_fast32_t, uint_fast32_t)>& f){
 		if(in[u] == -1){
-			cout << "Invalid vertex." << endl;
+			std::cout << "Invalid vertex." << std::endl;
 			return;
 		}
 		f(in[u], out[u]);
 	}
 
-	int32 lca(int32 u, int32 v){
+	uint_fast32_t lca(uint_fast32_t u, uint_fast32_t v){
 		while(1){
-			if(vid[u] > vid[v]) swap(u, v);
+			if(vid[u] > vid[v]) std::swap(u, v);
 			if(head[u] != head[v]) v = par[head[v]];
 			else return u;
 		}
 	}
 
-	int32 distance(int32 u, int32 v){
-		return dep[u]+dep[v]-2*dep[lca(u, v)];
+	uint_fast32_t distance(uint_fast32_t u, uint_fast32_t v){
+		uint_fast32_t ret = dep[u]+dep[v]-2*dep[lca(u, v)];
+		assert(ret >= 0);
+		return ret;
 	}
 
-	int32 getvid(int32 v){
+	uint_fast32_t getvid(uint_fast32_t v){
 		return vid[v];
 	}
 };
 
+/*
+	Heavy-Light Decomposition
+	- 木を列に分解する
+
+	- for_each
+		- u->vのパス上の頂点への処理
+		- f(u, v) -> [u, v]
+	
+	- for_each_edge
+		- u->vのパス上の辺への処理
+		- 重みなどは根から遠い方の頂点に持たせる
+		- f(u, v) -> [u, v]
+
+	- for_subtree
+		- uの部分木への処理
+		- 頂点の場合はそのまま f(u, v) -> [u, v]
+		- 辺の場合は呼び出されたときにu+1 f(u, v) -> [u+1, v]
+*/
+
 int main(void){
-	cin.tie(0);
-	ios::sync_with_stdio(false);
+	std::cin.tie(0);
+	std::ios::sync_with_stdio(false);
 }
