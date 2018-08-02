@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 
 template<typename CommutativeMonoid>
-class BIT{
+class FenwickTree{
 public:
 	using value_type = CommutativeMonoid;
 
@@ -10,9 +10,9 @@ private:
 	size_t N;
 
 public:
-	BIT(){}
-	BIT(const size_t& N):N(N+10), tree(N+11, value_type()){}
-	BIT(const BIT& bit):tree(bit.tree), N(bit.N){}
+	FenwickTree(){}
+	FenwickTree(const size_t& N):N(N+10), tree(N+11, value_type()){}
+	FenwickTree(const FenwickTree& bit):tree(bit.tree), N(bit.N){}
 
 	void update(size_t k, const value_type& diff){
 		for(;k <= N;k += k & -k){
@@ -69,7 +69,7 @@ int main(void){
 
 	int_fast64_t n, q;
 	scanf("%lld%lld", &n, &q);
-	BIT<int_fast64_t> bit(n);
+	FenwickTree<int_fast64_t> bit(n);
 	for(int32_t i = 0;i < q;i++){
 		int64_t com, x, y;
 		scanf("%lld%lld%lld", &com, &x, &y);
@@ -86,7 +86,7 @@ int main(void){
 verify: https://beta.atcoder.jp/contests/arc033/submissions/2936185
 int main(void){
 	int64_t Q;
-	BIT<int32_t> bit(200001);
+	FenwickTree<int32_t> bit(200001);
 	scanf("%lld", &Q);
 	for(int32_t i = 0;i < Q;i++){
 		int32_t T, X;
