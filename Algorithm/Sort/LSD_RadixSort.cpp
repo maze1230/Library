@@ -35,7 +35,7 @@ void LSD_RadixSort(RandomAccessIterator first, RandomAccessIterator last,
 
 	LSD_RadixSort(first, last, maximum, max_digit, get_digit)
 	- 基数ソートを行う
-	- 計算量はO(N * max_digit)
+	- 計算量はO(N * max_digit + maximum * max_digit)
 	- よく考えたらランダムアクセスじゃなくてもいいけど一回vにコピーしてるしいっかなって
 
 	Iterater first, last
