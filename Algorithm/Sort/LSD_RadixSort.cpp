@@ -1,34 +1,38 @@
 #include <bits/stdc++.h>
 
-template<class RandomAccessIterator>
+template<::std::size_t maximum, ::std::size_t max_digit,
+	class RandomAccessIterator, class F>
 void LSD_RadixSort(RandomAccessIterator first, RandomAccessIterator last,
-		int maximum, int max_digit,
-		::std::function<int(typename RandomAccessIterator::value_type, int)> get_digit){
-	using value_type = typename RandomAccessIterator::value_type;
+		const F &get_digit){
+	using value_type = typename ::std::iterator_traits<RandomAccessIterator>::value_type;
+	using size_type = ::std::size_t;
 
-	::std::size_t size = ::std::distance(first, last);
-	::std::vector<::std::vector<int>> bucket(maximum+1);
-	::std::vector<value_type> v(first, last), tmp;
+	const ::std::vector<value_type> cpy(first, last);
+	const size_type size = cpy.size();
+	::std::array<size_type, maximum+2> count;
+	::std::vector<size_type> res(size), tmp(size);
 
-	int digit = 0;
+	::std::iota(res.begin(), res.end(), 0);
 
-	for(int digit = 0;digit < max_digit;digit++){
-		for(int i = 0;i < size;i++){
-			int x = get_digit(v[i], digit);
-			bucket[x].push_back(i);
+	for(size_type digit = 0;digit < max_digit;++digit){
+		::std::fill(count.begin(), count.end(), 0);
+		for(const auto i : res){
+			++count[get_digit(cpy[i], digit) + 1];
 		}
 
-		for(int i = 0;i <= maximum;i++){
-			for(int j = 0;j < bucket[i].size();j++){
-				tmp.push_back(v[bucket[i][j]]);
-			}
-			bucket[i].clear();
+		for(size_type i = 1;i < maximum;++i){
+			count[i+1] += count[i];
 		}
 
-		::std::swap(v, tmp);
-		tmp.clear();
+		for(const auto i : res){
+			tmp[count[get_digit(res[i], digit)]++] = i;
+		}
+		::std::swap(res, tmp);
 	}
-	::std::move(v.begin(), v.end(), first);
+
+	for(size_type i = 0;i < size;++i){
+		*(first + i) = cpy[res[i]];
+	}
 }
 
 /*
