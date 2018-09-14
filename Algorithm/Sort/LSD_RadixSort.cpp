@@ -25,12 +25,11 @@ void LSD_RadixSort(RandomAccessIterator first, RandomAccessIterator last,
 		}
 
 		for(const auto i : res){
-			tmp[count[get_digit(res[i], digit)]++] = i;
+			tmp[count[get_digit(cpy[i], digit)]++] = i;
 		}
 		::std::swap(res, tmp);
 	}
-
-	for(size_type i = 0;i < size;++i){
+for(size_type i = 0;i < size;++i){
 		*(first + i) = cpy[res[i]];
 	}
 }
@@ -65,7 +64,9 @@ void LSD_RadixSort(RandomAccessIterator first, RandomAccessIterator last,
 verify:https://beta.atcoder.jp/contests/abc088/submissions/3178594
 
 int get(int x, int dig){
-	return x >> dig & 1;
+	for(int i = 0;i < dig;i++)
+		x /= 10;
+	return x % 10;
 }
 
 int main(void){
@@ -75,7 +76,7 @@ int main(void){
 	v.resize(n);
 	for(int i = 0;i < n;i++) std::cin >> v[i];
 
-	LSD_RadixSort(v.begin(), v.end(), 2, 32, get);
+	LSD_RadixSort<10, 2> (v.begin(), v.end(),get);
 	std::reverse(v.begin(), v.end());
 	int res = 0;
 	for(int i = 0;i < n;i++) res = res + v[i] * (i%2 ? -1 : 1);
