@@ -35,7 +35,7 @@ public:
 	template<class InputIterator>
 	SegTree(InputIterator first, InputIterator last)
 			: size_(::std::distance(first, last)){
-		tree(size_, value_structure::identity());
+		tree = container_type(size_, value_structure::identity());
 		tree.insert(tree.end(), first, last);
 		for(size_type i = size_;i > 0;i--){
 			calc_node(i);
