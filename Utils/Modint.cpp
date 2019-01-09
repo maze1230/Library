@@ -19,17 +19,6 @@ public:
 	bool operator==(const ModInt& m) const { return n == m.n; }
 	bool operator!=(const ModInt& m) const { return n != m.n; }
 	ModInt& operator*=(const ModInt& m){ n = n * m.n % mod; return *this; }
-	
-	ModInt operator++(int){
-		ModInt old(n);
-		n = (n + 1) % mod;
-		return old;
-	}
-	ModInt operator--(int){
-		ModInt old(n);
-		n = (n - 1 + mod) % mod;
-		return old;
-	}
 
 	ModInt pow(value_type b) const{
 		ModInt ans = 1, m = ModInt(*this);
@@ -42,8 +31,6 @@ public:
 	}
 
 	ModInt inv() const { return (*this).pow(mod-2); }
-	ModInt& operator++(){ n = (n + 1) % mod; return *this; }
-	ModInt& operator--(){ n = (n - 1 + mod) % mod; return *this; }
 	ModInt& operator+=(const ModInt& m){ n += m.n; n = (n < mod ? n : n - mod); return *this; }
 	ModInt& operator-=(const ModInt& m){ n += mod - m.n; n = (n < mod ? n : n - mod); return *this; }
 	ModInt& operator/=(const ModInt& m){ n = n * m.inv() % mod; return *this; }
@@ -51,6 +38,18 @@ public:
 	ModInt operator-(const ModInt& m) const { return ModInt(*this) -= m; }
 	ModInt operator*(const ModInt& m) const { return ModInt(*this) *= m; }
 	ModInt operator/(const ModInt& m) const { return ModInt(*this) /= m; }
+	ModInt& operator++(){ n += 1; return *this; }
+	ModInt& operator--(){ n -= 1; return *this; }
+	ModInt operator++(int){
+		ModInt old(n);
+		n += 1;
+		return old;
+	}
+	ModInt operator--(int){
+		ModInt old(n);
+		n -= 1;
+		return old;
+	}
 };
 
 template<::std::uint_fast64_t mod>
