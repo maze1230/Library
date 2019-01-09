@@ -96,7 +96,7 @@ public:
 	}
 
 	size_type size() const { return size_; }
-	const_reference operator[](const size_type k) const {
+	const_reference operator[](const size_type k){
 		assert(k < size_);
 		propagate(k+size_);
 		tree[k+size_] = reflect(tree[k+size_], lazy[k+size_]);
