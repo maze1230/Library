@@ -2,7 +2,7 @@
 
 class UnionFind{
 private:
-	std::vector<int_fast32_t> par;
+	::std::vector<int_fast32_t> par;
 	size_t n;
 
 public:
@@ -19,13 +19,14 @@ public:
 		return -par[find(x)];
 	}
 
-	void unite(uint_fast32_t x, uint_fast32_t y){
+	bool unite(uint_fast32_t x, uint_fast32_t y){
 		x = find(x);
 		y = find(y);
-		if(x == y) return;
+		if(x == y) return false;
 		if(size(x) < size(y)) std::swap(x, y);
 		par[x] += par[y];
 		par[y] = x;
+		return true;
 	}
 
 	bool same(uint_fast32_t x, uint_fast32_t y){
@@ -37,3 +38,24 @@ int main(void){
 	std::cin.tie(0);
 	std::ios::sync_with_stdio(false);
 }
+
+/*
+
+class UnionFind
+
+UnionFind
+	- 提供
+		- find(uint x) -> uint
+			- xの属する木の根を返す
+
+		- size(uint x) -> size_t
+			- xの属する木の頂点数を返す
+
+		- unite(uint x, uint y) -> bool
+			- xの属する木とyの属する木を併合する
+			- 既に同じ木に属しているときはfalseを返す
+
+		- same(uint x, uint y) -> bool
+			- xとyが同じ木に属しているかを返す
+
+*/
