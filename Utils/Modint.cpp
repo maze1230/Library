@@ -11,10 +11,17 @@ public:
 	ModInt(const ModInt& m) : n(m.n) {}
 
 	explicit operator value_type() const { return n; }
-	template<::std::uint_fast64_t mod_>
-	friend ::std::ostream& operator<<(::std::ostream&, const ModInt<mod_>&);
-	template<::std::uint_fast64_t mod_>
-	friend ::std::istream& operator>>(::std::istream&, const ModInt<mod_>&);
+
+	friend ::std::ostream& operator<<(::std::ostream &os, const ModInt<mod> &a) {
+		return os << a.n;
+	}
+
+	friend ::std::istream& operator>>(::std::istream &is, ModInt<mod> &a) {
+		value_type x;
+		is >> x;
+		a = ModInt<mod>(x);
+		return is;
+	}
 
 	bool operator==(const ModInt& m) const { return n == m.n; }
 	bool operator!=(const ModInt& m) const { return n != m.n; }
@@ -51,15 +58,3 @@ public:
 		return old;
 	}
 };
-
-template<::std::uint_fast64_t mod>
-::std::ostream& operator<<(::std::ostream& stream, const ModInt<mod>& m){
-	stream << m.n;
-	return stream;
-}
-
-template<::std::uint_fast64_t mod>
-::std::istream& operator>>(::std::istream& stream, const ModInt<mod>& m){
-	stream >> m.n;
-	return stream;
-}
