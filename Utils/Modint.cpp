@@ -10,7 +10,9 @@ public:
 	ModInt(value_type n_) : n(n_ % mod) {}
 	ModInt(const ModInt& m) : n(m.n) {}
 
-	explicit operator value_type() const { return n; }
+	template<typename T>
+	explicit operator T() const { return static_cast<T>(n); }
+	value_type get() const { return n; }
 
 	friend ::std::ostream& operator<<(::std::ostream &os, const ModInt<mod> &a) {
 		return os << a.n;
@@ -40,7 +42,7 @@ public:
 	ModInt inv() const { return (*this).pow(mod-2); }
 	ModInt& operator+=(const ModInt& m){ n += m.n; n = (n < mod ? n : n - mod); return *this; }
 	ModInt& operator-=(const ModInt& m){ n += mod - m.n; n = (n < mod ? n : n - mod); return *this; }
-	ModInt& operator/=(const ModInt& m){ n = n * m.inv() % mod; return *this; }
+	ModInt& operator/=(const ModInt& m){ *this *= m.inv(); return *this; }
 	ModInt operator+(const ModInt& m) const { return ModInt(*this) += m; }
 	ModInt operator-(const ModInt& m) const { return ModInt(*this) -= m; }
 	ModInt operator*(const ModInt& m) const { return ModInt(*this) *= m; }
@@ -57,4 +59,5 @@ public:
 		n -= 1;
 		return old;
 	}
+	ModInt operator-() const { return ModInt(mod-n); }
 };
