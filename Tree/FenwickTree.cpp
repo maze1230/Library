@@ -20,13 +20,13 @@ public:
 	FenwickTree(const size_type& N):N(N+10), tree(N+11, value_structure::identity()){}
 	FenwickTree(const FenwickTree& bit):tree(bit.tree), N(bit.N){}
 
-	void update(size_type k, const value_type& diff){
+	void update(size_type k, const value_type& diff){ // update k in [1, N]
 		for(;k <= N;k += k & -k){
 			tree[k] = calc(tree[k], diff);
 		}
 	}
 
-	value_type query(size_type k) const { // sum of [0, k)
+	value_type query(size_type k) const { // sum of [1, k]
 		value_type res = value_structure::identity();
 		for(;k > 0;k -= k & -k){
 			res = calc(res, tree[k]);
@@ -36,6 +36,10 @@ public:
 
 	void updatez(size_type k, value_type v){ // 0-indexed
 		update(k+1, v);
+	}
+
+	value_type queryz(size_type k) const { // [0, k) 
+		return query(k+1);
 	}
 
 	size_type search(const std::function<bool(value_type)>& f) const { // Find k :[0, k) -> True, [0, k-1) -> False

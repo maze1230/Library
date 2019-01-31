@@ -1,125 +1,166 @@
 #include <bits/stdc++.h>
-using namespace std;
-
-#define INF_LL (int64)1e18
-#define INF (int32)1e9
-#define REP(i, n) for(int i = 0;i < (n);i++)
-#define FOR(i, a, b) for(int i = (a);i < (b);i++)
-#define all(x) x.begin(),x.end()
-#define fs first
-#define sc second
-using int32 = int_fast32_t;
-using uint32 = uint_fast32_t;
-using int64 = int_fast64_t;
-using uint64 = uint_fast64_t;
-using PII = pair<int32, int32>;
-using PLL = pair<int64, int64>;
-
-const double eps = 1e-10;
-
-template<typename A, typename B>inline void chmin(A &a, B b){if(a > b) a = b;}
-template<typename A, typename B>inline void chmax(A &a, B b){if(a < b) a = b;}
 
 template<typename T>
 class Matrix{
 private:
-	using mat = vector<vector<T>>;
-	const int64 mod = 1e9+7;
-	mat m;
+	using size_type = ::std::size_t;
+	using Row = ::std::vector<T>;
+	using Mat = ::std::vector<Row>;
+
+	size_type R, C; // row, column
+	Mat A;
+
+	void add_row_to_another(size_type r1, size_type r2, const T k){ // Row(r1) += Row(r2)*k
+		for(size_type i = 0;i < C;i++)
+			A[r1][i] += A[r2][i]*k;
+	}
+
+	void scalar_multiply(size_type r, const T k){
+		for(size_type i = 0;i < C;i++)
+			A[r][i] *= k;
+	}
+
+	void scalar_division(size_type r, const T k){
+		for(size_type i = 0;i < C;i++)
+			A[r][i] /= k;
+	}
+
 public:
-	uint32 col=0, row=0;
 	Matrix(){}
-	Matrix(mat&& m):m(m){ row = m.size(); col = m[0].size(); }
-	Matrix(Matrix<T>&& rhs){ m = rhs.m; row = rhs.row; col = rhs.col;}
-	Matrix(int32 row, int32 col, bool isIdentity=false):row(row),col(col){
-		m = mat(row, vector<T>(col, 0));
-		if(isIdentity && row == col){
-			for(int32 i = 0;i < row;i++)	m[i][i] = 1;
-		}
+	Matrix(size_type r, size_type c) : R(r), C(c), A(r, Row(c)) {}
+	Matrix(const Mat &m) : R(m.size()), C(m[0].size()), A(m) {}
+	Matrix(const Mat &&m) : R(m.size()), C(m[0].size()), A(m) {}
+	Matrix(const Matrix<T> &m) : R(m.R), C(m.C), A(m.A) {}
+	Matrix(const Matrix<T> &&m) : R(m.R), C(m.C), A(m.A) {}
+	Matrix<T> &operator=(const Matrix<T> &m){
+ 		R = m.R; C = m.C; A = m.A;
+		return *this;
+	}
+	Matrix<T> &operator=(const Matrix<T> &&m){
+ 		R = m.R; C = m.C; A = m.A;
+		return *this;
+	}
+	static Matrix I(const size_type N){
+		Matrix m(N, N);
+		for(size_type i = 0;i < N;i++) m[i][i] = 1;
+		return m;
 	}
 
-	Matrix<T> pow(int64 x){
-		if(x == 0) return Matrix(row, col, 1);
-		if(x&1) return (*this)*pow(x-1);
-		Matrix<T> ret = pow(x/2);
-		return ret*ret;
-	}
+	const Row& operator[](size_type k) const& { return A.at(k); }
+	Row& operator[](size_type k) & { return A.at(k); }
+	Row operator[](size_type k) const&& { return ::std::move(A.at(k)); }
 
-	Matrix<T> operator+(const Matrix<T>& rhs){
-		Matrix<T> ret = *this;
-		if(row != rhs.row || col != rhs.col){
-			cerr << "Error happened in operator+:the number of lhs's col & row is not the number of rhs's" << endl;
-			exit(-1);
-		}
-		for(int32 i = 0;i < row;i++){
-			for(int32 j = 0;j < col;j++){
-				ret[i][j] = m[i][j]+rhs[i][j];
-				//if(is_integral<T>::value) ret[i][j] %= mod;
-			}
-		}
-		return ret;
-	}
+	size_type row() const { return R; } // the number of rows
+	size_type column() const { return C; }
 
-	Matrix<T> operator*(T x){
-		Matrix<T> ret = m;
-		for(int32 i = 0;i < row;i++){
-			for(int32 j = 0;j < col;j++){
-				ret[i][j] = m[i][j]*x;
-				//if(is_integral<T>::value) ret[i][j] %= mod;
-			}
-		}
-		return ret;
-	}
-
-	Matrix<T> operator*(const Matrix<T>& rhs){
-		Matrix<T> ret = mat(row, vector<T>(rhs.col, 0));
-		if(col != rhs.row){
-			cerr << "Error happened in operator*:the number of lhs's col is not the number of rhs's" << endl;
-			exit(-1);
-		}
-
-		for(int32 i = 0;i < row;i++){
-			for(int32 j = 0;j < rhs.col;j++){
-				for(int32 k = 0;k < col;k++){
-					ret[i][j] = ret[i][j]+m[i][k]*rhs[k][j];
+	T determinant(){
+		assert(R == C);
+		Mat tmp = A;
+		T res = 1;
+		for(size_type i = 0;i < R;i++){
+			for(size_type j = i;j < R;j++){ // satisfy A[i][i] > 0
+				if (A[j][i] != 0) {
+					if (i != j) res *= -1;
+					swap(A[j], A[i]);
+					break;
 				}
-				//if(is_integral<T>::value) ret[i][j] %= mod;
+			}
+			if (A[i][i] == 0) return 0;
+			res *= A[i][i];
+			scalar_division(i, A[i][i]);
+			for(size_type j = i+1;j < R;j++){
+				add_row_to_another(j, i, -A[j][i]);
 			}
 		}
-		return ret;
+		swap(tmp, A);
+		return res;
 	}
 
-	Matrix<T>& operator=(mat&& rhs){ m = rhs; row = rhs.size(); col = rhs[0].size(); return (*this);}
-	Matrix<T>& operator=(Matrix&& rhs){ m = rhs.m; row = rhs.row; col = rhs.col; return (*this);}
-	const vector<T>& operator[](int32 x) const{ return m[x];}
-	vector<T>& operator[](int32 x){return m[x];}
-
-};
-
-template<typename T>
-istream& operator>>(istream& is, Matrix<T>& m){
-	if(m.row == 0 || m.col == 0){
-		cerr << "The matrix is not available." << endl;
-		return is;
+	Matrix inverse(){
+		assert(R == C);
+		assert(determinant() != 0);
+		Matrix inv(Matrix::I(R)), tmp(*this);
+		for(size_type i = 0;i < R;i++){
+			for(size_type j = i;j < R;j++){
+				if (A[j][i] != 0) {
+					swap(A[j], A[i]);
+					swap(inv[j], inv[i]);
+					break;
+				}
+			}
+			inv.scalar_division(i, A[i][i]);
+			scalar_division(i, A[i][i]);
+			for(size_type j = 0;j < R;j++){
+				if(i == j) continue;
+				inv.add_row_to_another(j, i, -A[j][i]);
+				add_row_to_another(j, i, -A[j][i]);
+			}
+		}
+		(*this) = tmp;
+		return inv;
 	}
-	for(int32 i = 0;i < m.row;i++) for(int32 j = 0;j < m.col;j++) is >> m[i][j];
-	return is;
-}
 
-template<typename T>
-ostream& operator<<(ostream&os, const Matrix<T>& m){
-	if(m.row == 0 || m.col == 0){
-		cerr << "The matrix is not available." << endl;
+	Matrix& operator+=(const Matrix &B){
+		assert(column() == B.column() && row() == B.row());
+		for(size_type i = 0;i < R;i++)
+			for(size_type j = 0;j < C;j++)
+				(*this)[i][j] += B[i][j];
+		return *this;
+	}
+
+	Matrix& operator-=(const Matrix &B){
+		assert(column() == B.column() && row() == B.row());
+		for(size_type i = 0;i < R;i++)
+			for(size_type j = 0;j < C;j++)
+				(*this)[i][j] -= B[i][j];
+		return *this;
+	}
+
+	Matrix& operator*=(const Matrix &B){
+		assert(R == B.row());
+		Mat M(R, Row(C, 0));
+		for(size_type i = 0;i < R;i++)
+			for(size_type j = 0;j < B.column();j++)
+				for(size_type k = 0;k < C;k++)
+					M[i][j] += (*this)[i][k] * B[k][j];
+		A.swap(M);
+		return *this;
+	}
+
+	Matrix& operator/=(const Matrix &B){
+		assert(C == B.row());
+		Matrix M(B);
+		(*this) *= M.inverse();
+		return *this;
+	}
+
+	Matrix operator+(const Matrix &B) const { return (Matrix(*this) += B); }
+	Matrix operator-(const Matrix &B) const { return (Matrix(*this) -= B); }
+	Matrix operator*(const Matrix &B) const { return (Matrix(*this) *= B); }
+	Matrix operator/(const Matrix &B) const { return (Matrix(*this) /= B); }
+
+	Matrix pow(size_type k){
+		assert(R == C);
+		Matrix M(Matrix::I(R));
+		while(k){
+			if (k & 1) M *= (*this);
+			k >>= 1;
+			(*this) *= (*this);
+		}
+		A.swap(M.A);
+		return *this;
+	}
+
+	friend ::std::ostream &operator<<(::std::ostream &os, Matrix &p){
+		for(size_type i = 0;i < p.row();i++){
+			for(size_type j = 0;j < p.column();j++){
+				os << p[i][j] << " ";
+			}
+			os << ::std::endl;
+		}
 		return os;
 	}
-	for(int32 i = 0;i < m.row;i++){
-		for(int32 j = 0;j < m.col;j++) os << m[i][j] << " ";
-		os << endl;
-	}
-	return os;
-}
+};
 
 int main(void){
-	cin.tie(0);
-	ios::sync_with_stdio(false);
 }
