@@ -117,13 +117,13 @@ public:
 	}
 
 	Matrix& operator*=(const Matrix &B){
-		assert(R == B.row());
-		Mat M(R, Row(C, 0));
+		assert(column() == B.row());
+		Matrix M(R, Row(B.column, 0));
 		for(size_type i = 0;i < R;i++)
 			for(size_type j = 0;j < B.column();j++)
 				for(size_type k = 0;k < C;k++)
 					M[i][j] += (*this)[i][k] * B[k][j];
-		A.swap(M);
+		swap(M, *this);
 		return *this;
 	}
 
@@ -138,6 +138,15 @@ public:
 	Matrix operator-(const Matrix &B) const { return (Matrix(*this) -= B); }
 	Matrix operator*(const Matrix &B) const { return (Matrix(*this) *= B); }
 	Matrix operator/(const Matrix &B) const { return (Matrix(*this) /= B); }
+
+	bool operator==(const Matrix &B) const {
+		if (column() != B.column() || row() != B.row()) return false;
+		for(size_type i = 0;i < row();i++)
+			for(size_type j = 0;j < column();j++)
+				if ((*this)[i][j] != B[i][j]) return false;
+		return true;
+	}
+	bool operator!=(const Matrix &B) const { return !((*this) == B); }
 
 	Matrix pow(size_type k){
 		assert(R == C);
@@ -162,5 +171,5 @@ public:
 	}
 };
 
-int main(void){
+int main(){
 }
