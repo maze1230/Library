@@ -21,16 +21,16 @@ private:
 public:
 	DynamicSegTree(){}
 	DynamicSegTree(size_type n_) : n(n_) {
-		root.reset(new Node(value_structure::identity()));
+		root = ::std::make_unique<Node>(value_structure::identity());
 	}
 
 	template<class F>
 	void update(size_type k, const F &f){
-		root = update(k, f, ::std::move(root));
+		root = update(k, f, ::std::move(root), 0, n);
 	}
 
 	template<class F>
-	pointer update(size_type k, const F &f, pointer now, size_type l = 0, size_type r = -1){
+	pointer update(size_type k, const F &f, pointer now, size_type l, size_type r){
 		if (r < 0) { r = n; }
 		if (r - l == 1) {
 			now->v = f(::std::move(now->v));
@@ -39,10 +39,10 @@ public:
 
 		size_type m = (l + r) >> 1;
 		if (k < m) {
-			if (!now->lch) now->lch.reset(new Node(value_structure::identity()));
+			if (!now->lch) now->lch = ::std::make_unique<Node>(value_structure::identity());
 			now->lch = update(k, f, ::std::move(now->lch), l, m);
 		} else {
-			if (!now->rch) now->rch.reset(new Node(value_structure::identity()));
+			if (!now->rch) now->rch = ::std::make_unique<Node>(value_structure::identity());
 			now->rch = update(k, f, ::std::move(now->rch), m, r);
 		}
 		value_type lv = now->lch ? now->lch->v : value_structure::identity();
@@ -53,11 +53,11 @@ public:
 
 	value_type query(size_type a, size_type b){
 		value_type res;
-		tie(root, res) = query(a, b, ::std::move(root));
+		tie(root, res) = query(a, b, ::std::move(root), 0, n);
 		return res;
 	}
 
-	pointer_value query(size_type a, size_type b, pointer now, size_type l = 0, size_type r = -1){
+	pointer_value query(size_type a, size_type b, pointer now, size_type l, size_type r){
 		if (r < 0) { r = n; }
 		if (a <= l && r <= b) return ::std::make_pair(::std::move(now), now->v);
 		if (r <= a || b <= l) return ::std::make_pair(::std::move(now), value_structure::identity());
