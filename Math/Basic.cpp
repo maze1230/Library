@@ -152,3 +152,19 @@ bool isPrimitiveRoot(::std::int64_t x, ::std::int64_t n) {
 	}
 	return res;
 }
+
+
+
+// return sqrt(x) that sqrt(x)^2 <= x <= (sqrt(x)+1)^2
+// O(log x)
+::std::int64_t sqrt_int(::std::int64_t x) {
+	::std::int64_t l = 0, r = x+1, m;
+	while (r - l > 1) {
+		m = (l + r) >> 1;
+		if (m * m > x)
+			r = m;
+		else
+			l = m;
+	}
+	return l;
+}
