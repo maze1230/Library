@@ -62,9 +62,9 @@ bool isPrime(::std::int64_t x){
 
 
 
-// return vector of factors of x
+// return vector of divisors of x
 // O(sqrt x + N log N) (N is the number of factors)
-::std::vector<::std::int64_t> factors(::std::int64_t x) {
+::std::vector<::std::int64_t> divisors(::std::int64_t x) {
 	::std::vector<::std::int64_t> res;
 	for (::std::int64_t i = 1; i*i <= x; ++i) {
 		if (x % i == 0) {
