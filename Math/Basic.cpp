@@ -78,6 +78,21 @@ bool isPrime(::std::int64_t x){
 
 
 
+// return whether x is the primitive root modulo n or not
+// O(sqrt x)
+//
+// Require -> divisors, modpow
+bool isPrimitiveRoot(::std::int64_t x, ::std::int64_t n) {
+	auto divs = divisors(n - 1);
+	for (auto d : divs) {
+		if (d == p - 1) break;
+		if (modpow(x, d, n) == 1) return false;
+	}
+	return true;
+}
+
+
+
 // return gcd
 // O(log max(a, b))
 ::std::int64_t gcd(::std::int64_t a, ::std::int64_t b) {
