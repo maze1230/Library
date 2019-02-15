@@ -98,7 +98,7 @@ bool isPrimitiveRoot(::std::int64_t x, ::std::int64_t n) {
 ::std::int64_t gcd(::std::int64_t a, ::std::int64_t b) {
 	while (b != 0) {
 		::std::swap(a, b);
-		a = a % b;
+		b = b % a;
 	}
 	return a;
 }
