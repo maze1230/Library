@@ -10,11 +10,20 @@ public:
 	ModInt(value_type n_) : n(n_ % mod) {}
 	ModInt(const ModInt& m) : n(m.n) {}
 
-	explicit operator value_type() const { return n; }
-	template<::std::uint_fast64_t mod_>
-	friend ::std::ostream& operator<<(::std::ostream&, const ModInt<mod_>&);
-	template<::std::uint_fast64_t mod_>
-	friend ::std::istream& operator>>(::std::istream&, const ModInt<mod_>&);
+	template<typename T>
+	explicit operator T() const { return static_cast<T>(n); }
+	value_type get() const { return n; }
+
+	friend ::std::ostream& operator<<(::std::ostream &os, const ModInt<mod> &a) {
+		return os << a.n;
+	}
+
+	friend ::std::istream& operator>>(::std::istream &is, ModInt<mod> &a) {
+		value_type x;
+		is >> x;
+		a = ModInt<mod>(x);
+		return is;
+	}
 
 	bool operator==(const ModInt& m) const { return n == m.n; }
 	bool operator!=(const ModInt& m) const { return n != m.n; }
@@ -33,7 +42,7 @@ public:
 	ModInt inv() const { return (*this).pow(mod-2); }
 	ModInt& operator+=(const ModInt& m){ n += m.n; n = (n < mod ? n : n - mod); return *this; }
 	ModInt& operator-=(const ModInt& m){ n += mod - m.n; n = (n < mod ? n : n - mod); return *this; }
-	ModInt& operator/=(const ModInt& m){ n = n * m.inv() % mod; return *this; }
+	ModInt& operator/=(const ModInt& m){ *this *= m.inv(); return *this; }
 	ModInt operator+(const ModInt& m) const { return ModInt(*this) += m; }
 	ModInt operator-(const ModInt& m) const { return ModInt(*this) -= m; }
 	ModInt operator*(const ModInt& m) const { return ModInt(*this) *= m; }
@@ -50,19 +59,8 @@ public:
 		n -= 1;
 		return old;
 	}
+	ModInt operator-() const { return ModInt(mod-n); }
 };
-
-template<::std::uint_fast64_t mod>
-::std::ostream& operator<<(::std::ostream& stream, const ModInt<mod>& m){
-	stream << m.n;
-	return stream;
-}
-
-template<::std::uint_fast64_t mod>
-::std::istream& operator>>(::std::istream& stream, const ModInt<mod>& m){
-	stream >> m.n;
-	return stream;
-}
 
 template<::std::size_t size, ::std::uint_fast64_t mod=1000000007>
 class Factorial{
