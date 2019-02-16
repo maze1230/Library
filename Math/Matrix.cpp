@@ -118,11 +118,15 @@ public:
 
 	Matrix& operator*=(const Matrix &B){
 		assert(column() == B.row());
-		Matrix M(R, Row(B.column(), 0));
-		for(size_type i = 0;i < R;i++)
-			for(size_type j = 0;j < B.column();j++)
-				for(size_type k = 0;k < C;k++)
+		Matrix M(R, B.column());
+		for(size_type i = 0;i < R;i++) {
+			for(size_type j = 0;j < B.column();j++) {
+				M[i][j] = 0;
+				for(size_type k = 0;k < C;k++) {
 					M[i][j] += (*this)[i][k] * B[k][j];
+				}
+			}
+		}
 		swap(M, *this);
 		return *this;
 	}
