@@ -78,6 +78,22 @@ bool isPrime(::std::int64_t x){
 
 
 
+// return totient(x) which is the number of i satisfying gcd(x, i) = 1
+// O(sqrt(x))
+::std::int64_t totient(::std::int64_t x) {
+	::std::int64_t res = x;
+	for (::std::int64_t i = 2; i * i <= x; ++i) {
+		if (x % i == 0) {
+			res = res / i * (i - 1);
+			while (x % i == 0) x /= i;
+		}
+	}
+	if (x != 1) res = res / x * (x - 1);
+	return res;
+}
+
+
+
 // return whether x is the primitive root modulo n or not
 // O(sqrt x)
 //
