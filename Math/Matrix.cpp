@@ -118,7 +118,7 @@ public:
 
 	Matrix& operator*=(const Matrix &B){
 		assert(column() == B.row());
-		Matrix M(R, Row(B.column, 0));
+		Matrix M(R, Row(B.column(), 0));
 		for(size_type i = 0;i < R;i++)
 			for(size_type j = 0;j < B.column();j++)
 				for(size_type k = 0;k < C;k++)
