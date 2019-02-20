@@ -1,76 +1,58 @@
 #include <bits/stdc++.h>
-using namespace std;
 
-#define INF_LL (int64)1e18
-#define INF (int32)1e9
-#define REP(i, n) for(int i = 0;i < (n);i++)
-#define FOR(i, a, b) for(int i = (a);i < (b);i++)
-#define all(x) x.begin(),x.end()
-#define fs first
-#define sc second
-using int32 = int_fast32_t;
-using uint32 = uint_fast32_t;
-using int64 = int_fast64_t;
-using uint64 = uint_fast64_t;
-using PII = pair<int32, int32>;
-using PLL = pair<int64, int64>;
-
-const double eps = 1e-10;
-
-template<typename A, typename B>inline void chmin(A &a, B b){if(a > b) a = b;}
-template<typename A, typename B>inline void chmax(A &a, B b){if(a < b) a = b;}
-
-const int32 DIRECTED = 0;
-const int32 UNDIRECTED = 1;
-
-template<int32 isUNDIRECTED=0>
-class Graph{
-	struct Edge{
-		int32 u, v, id;
-		int64 c;
-		Edge(int32 u, int32 v, int64 c=0, int32 id=0):u(u), v(v), c(c), id(id){}
+template<class EdgeInfo>
+class Graph {
+protected:
+	using size_type = ::std::size_t;
+	struct Edge {
+		size_type to;
+		EdgeInfo info;
+		Edge() : to(-1) {}
+		Edge(size_type to_, EdgeInfo info_) : to(to_), info(info_) {}
 	};
+	using edge_type = EdgeInfo;
 
-	int32 V, E;
-	vector<vector<Edge>> G;
-	vector<Edge> Es;
+	::std::vector<::std::vector<edge_type>> edges;
+
 public:
-	Graph(){}
-	Graph(int32 V):V(V){G.resize(V);}
-	Graph(const Graph<isUNDIRECTED>& g):V(g.V), E(g.E), G(g.G), Es(g.Es){}
+	Graph() {}
+	Graph(size_type n) : edges(n) {}
+	Graph(const Graph& g) : edges(g.edges) {}
+	Graph(Graph&& g) { ::std::swap(edges, g.edges); }
 
-	void add_edge(int32 u, int32 v, int64 c=0, int32 id=0){
-		G[u].emplace_back(u, v, c, id);
-		if(isUNDIRECTED) G[v].emplace_back(v, u, c, id);
-		Es.emplace_back(u, v, c, id);
-		E++;
-	}
+	const size_type size() { return edges.size(); }
+	virtual void add_edge (size_type from, size_type to, EdgeInfo info) = 0;
 
-	const vector<Edge>& operator[](int32 k){
-		return G[k];
-	}
+	const ::std::vector<edge_type>& operator[](size_type k) { return edges[k]; }
+};
 
-	int64 dijkstra(int64 s, int64 t){
-		vector<int64> d(V, INF_LL);
-		d[s] = 0;
-		priority_queue<PLL, vector<PLL>, greater<PLL>> pq;
-		pq.push({0, s});
-		while(pq.size()){
-			int64 v, dd;
-			tie(dd, v) = pq.top(); pq.pop();
-			if(dd > d[v]) continue;
-			REP(i, G[v].size()){
-				if(d[G[v][i].v] > d[v]+G[v][i].c){
-					d[G[v][i].v] = d[v]+G[v][i].c;
-					pq.push({d[G[v][i].v], G[v][i].v});
-				}
-			}
-		}
-		return d[t];
+template<class EdgeInfo>
+class DirectedGraph : public Graph<EdgeInfo> {
+protected:
+	using size_type = ::std::size_t;
+	using edge_type = typename Graph<EdgeInfo>::Edge;
+public:
+	DirectedGraph(size_type n) : Graph<EdgeInfo>(n) {}
+	DirectedGraph(const DirectedGraph& g) : Graph<EdgeInfo>(g) {}
+	DirectedGraph(DirectedGraph&& g) : Graph<EdgeInfo>(g) {}
+
+	void add_edge (size_type from, size_type to, EdgeInfo info = EdgeInfo()) {
+		this->edges[from].push_back(edge_type(to, info));
 	}
 };
 
-int main(void){
-	cin.tie(0);
-	ios::sync_with_stdio(false);
-}
+template<class EdgeInfo>
+class UndirectedGraph : public Graph<EdgeInfo> {
+protected:
+	using size_type = ::std::size_t;
+	using edge_type = typename Graph<EdgeInfo>::Edge;
+public:
+	UndirectedGraph(size_type n) : Graph<EdgeInfo>(n) {}
+	UndirectedGraph(const UndirectedGraph& g) : Graph<EdgeInfo>(g) {}
+	UndirectedGraph(UndirectedGraph&& g) : Graph<EdgeInfo>(g) {}
+
+	void add_edge (size_type from, size_type to, EdgeInfo info = EdgeInfo()) {
+		this->edges[from].push_back(edge_type(to, info));
+		this->edges[to].push_back(edge_type(from, info));
+	}
+};
