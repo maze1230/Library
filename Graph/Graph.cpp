@@ -30,8 +30,8 @@ template<class EdgeInfo>
 class DirectedGraph : public Graph<EdgeInfo> {
 protected:
 	using size_type = ::std::size_t;
-	using edge_type = typename Graph<EdgeInfo>::edge_type;
 public:
+	using edge_type = typename Graph<EdgeInfo>::edge_type;
 	DirectedGraph(size_type n) : Graph<EdgeInfo>(n) {}
 	DirectedGraph(const DirectedGraph& g) : Graph<EdgeInfo>(g) {}
 	DirectedGraph(DirectedGraph&& g) : Graph<EdgeInfo>(g) {}
@@ -45,8 +45,8 @@ template<class EdgeInfo>
 class UndirectedGraph : public Graph<EdgeInfo> {
 protected:
 	using size_type = ::std::size_t;
-	using edge_type = typename Graph<EdgeInfo>::edge_type;
 public:
+	using edge_type = typename Graph<EdgeInfo>::edge_type;
 	UndirectedGraph(size_type n) : Graph<EdgeInfo>(n) {}
 	UndirectedGraph(const UndirectedGraph& g) : Graph<EdgeInfo>(g) {}
 	UndirectedGraph(UndirectedGraph&& g) : Graph<EdgeInfo>(g) {}
