@@ -19,8 +19,8 @@ public:
 	Graph(size_type n) : edges(n) {}
 	Graph(const Graph& g) : edges(g.edges) {}
 	Graph(Graph&& g) { ::std::swap(edges, g.edges); }
-	Graph& operator=(const Graph& g) { edges = g.edges; }
-	Graph& operator=(Graph&& g) noexcept { ::std::swap(edges, g.edges); }
+	Graph& operator=(const Graph& g) { edges = g.edges; return *this;}
+	Graph& operator=(Graph&& g) noexcept { ::std::swap(edges, g.edges); return *this;}
 
 	const size_type size() { return edges.size(); }
 	virtual void add_edge (size_type from, size_type to, EdgeInfo info) = 0;
@@ -100,7 +100,7 @@ private:
 	using Graph = UndirectedGraph<edge_info>;
 	using edge_type = typename Graph::edge_type;
 
-	Graph graph, mst;
+	Graph graph;
 	weight_type weight_sum;
 public:
 	Kruskal() {}
@@ -109,12 +109,12 @@ public:
 	Kruskal(Graph&& g) : graph(g) {}
 
 	void add_edge(size_type from, size_type to, weight_type w) {
-		graph.add_edge(from, to, edge_type(from, w));
+		graph.add_edge(from, to, edge_info(from, w));
 	}
 
 	const Graph& build() {
 		UnionFind uf(graph.size());
-		mst = Graph(graph.size());
+		Graph mst = Graph(graph.size());
 		weight_sum = weight_type();
 		::std::vector<edge_type> edges;
 
@@ -136,15 +136,81 @@ public:
 			mst.add_edge(edge.info.from, edge.to, edge.info);
 			weight_sum = weight_sum + edge.info.w;
 		}
-		return mst;
+		return graph = mst;
 	}
 
 	const weight_type& weight() { return weight_sum; }
 };
 
+template<class EdgeWeight>
+class VoronoiMST {
+private:
+	using size_type = ::std::size_t;
+	using weight_type = EdgeWeight;
+
+	using edge_info = typename Kruskal<weight_type>::edge_info;
+	using Graph = UndirectedGraph<edge_info>;
+
+	Graph graph;
+	weight_type weight_sum;
+public:
+	VoronoiMST() {}
+	VoronoiMST(size_type n) : graph(n) {}
+	VoronoiMST(const Graph& g) : graph(g) {}
+	VoronoiMST(Graph&& g) : graph(g) {}
+
+	void add_edge(size_type from, size_type to, const weight_type w) {
+		graph.add_edge(from, to, edge_info(from, w));
+	}
+
+	const Graph& build(const ::std::vector<::std::int64_t>& base) {
+		::std::vector<size_type> base_(base.begin(), base.end());
+		return build(base_);
+	}
+
+	const Graph& build(const ::std::vector<size_type>& base) {
+		::std::vector<weight_type> ws(graph.size());
+		::std::vector<size_type> visit(graph.size(), -1);
+
+		for (auto x : base) {
+			assert(0 <= x && x < base.size());
+		}
+		Kruskal<weight_type> kr(base.size());
+
+		using P = ::std::tuple<weight_type, size_type, size_type>;
+		::std::priority_queue<P, ::std::vector<P>, ::std::greater<P>> pq;
+
+		for (auto x : base) {
+			pq.push(P(0, x, x));
+		}
+
+		while (pq.size()) {
+			weight_type w;
+			size_type u, src;
+			::std::tie(w, u, src) = pq.top(); pq.pop();
+			if (visit[u] == -1) {
+				visit[u] = src;
+				ws[u] = w;
+				for (auto &v : graph[u]) {
+					pq.push(P(w + v.info.w, v.to, src));
+				}
+			} else if (visit[u] < src) {
+				kr.add_edge(src, visit[u], w + ws[u]);
+			}
+		}
+		graph = kr.build();
+		weight_sum = kr.weight();
+
+		return graph;
+	}
+
+	const weight_type& weight() { return weight_sum; }
+};
+
+
 /*
 
-	 Kruskal
+	Voronoi MST
 
 	- class EdgeWeight
 		辺の重み
@@ -161,8 +227,8 @@ public:
 		- add_edge(size_type u, size_type v, EdgeWeight w )
 			- u <-> vと結ぶ重みwの無向辺を追加する
 
-		- build -> Graph
-			- 現在のGraphから最小全域森を構築し，返す
+		- build(vector<size_type> v) -> Graph
+			- 現在のGraphの頂点でvに含まれるものを頂点とする最小全域森を構築し，返す
 
 		- weight -> EdgeWeight
 			- 最後に構築した最小全域森の重みを返す
