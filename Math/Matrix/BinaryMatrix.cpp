@@ -19,7 +19,7 @@ private:
 
 public:
 	BinaryMatrix() {}
-	BinaryMatrix(size_type R_, size_type C_) : R(R_), C(C_), A(Mat(R_)) {}
+	BinaryMatrix(size_type R_, size_type C_ = Column) : R(R_), C(C_), A(Mat(R_)) {}
 	BinaryMatrix(const Mat& A_) : R(A_.size()), C(A_[0].size()), A(A_) {}
 	BinaryMatrix(const Mat&& A_) : R(A_.size()), C(A_[0].size()), A(A_) {}
 	BinaryMatrix(const BinaryMatrix& m) : R(m.R), C(m.C), A(m.A) {}
@@ -96,14 +96,31 @@ public:
 	}
 
 	size_type rank() {
-		BinaryMatrix ret = gaussian_elimination();
+		Mat tmp = A;
+		gaussian_elimination();
+		swap(tmp, A);
 		for (size_type i = 0; i < R; i++) {
 			size_type cnt = 0;
 			for (size_type j = 0; j < C; j++) {
-				if (ret[i][j]) cnt++;
+				if (tmp[i][j]) cnt++;
 			}
 			if (cnt == 0) return i;
 		}
 		return R;
+	}
+
+	// if you use this method, you must call gaussian_elimination before.
+	bool can_construct_x(const Row& x) {
+		Row now;
+		for (size_type i = 0; i < R; i++) {
+			for (size_type j = 0; j < C; j++) {
+				if (x[j] == now[j] && A[i][j]) break;
+				if (x[j] != now[j] && A[i][j]) {
+					now ^= A[i];
+					break;
+				}
+			}
+		}
+		return now == x;
 	}
 };
