@@ -4,7 +4,7 @@ class SA_IS {
 private:
   std::string str;
   std::vector<int> sa; 
-  bool built = 0;
+  bool built = false;
 
   static inline bool is_lms(const std::vector<int>& is_l, size_t idx) {
     return idx > 0 && is_l[idx-1] && !is_l[idx];
@@ -42,9 +42,9 @@ private:
     }
   }
 public:
-  SA_IS() {}
-  SA_IS(const std::string &str_) : str(str_), built(false) { str += '$'; }
-  SA_IS(std::string &&str_) : str(str_), built(false) { str += '$'; }
+  SA_IS() : built(false) {}
+  SA_IS(const std::string &str_) : str(str_) { build(); }
+  SA_IS(std::string &&str_) : str(str_) { build(); }
 
   std::vector<int> build(const std::vector<int>& v, int kinds) {
     if (v.size() == 1) return std::vector<int>(1, 0);
@@ -94,21 +94,23 @@ public:
   }
 
   void build() {
+    str += '$';
     std::vector<int> v(str.size());
     for (int i = 0; i < str.size(); i++) v[i] = str[i];
     sa = build(v, *std::max_element(v.begin(), v.end()));
     sa = std::vector<int>(sa.begin()+1, sa.end());
     built = true;
+    str = str.substr(0, str.size()-1);
   }
 
-  std::vector<int> get_sa() {
+  const std::vector<int>& get_sa() {
     assert(built);
     return sa;
   }
 
   bool is_upper(const std::string& t, int s_idx) { // t > sa[si]
     int idx = 0; s_idx = sa[s_idx];
-    while (s_idx+idx < str.size() && idx < t.size()) {
+    while (s_idx+idx < sa.size() && idx < t.size()) {
       if (t[idx] > str[s_idx+idx]) return true;
       if (t[idx] < str[s_idx+idx]) return false;
       idx++;
@@ -117,7 +119,7 @@ public:
   }
 
   int lower_bound(const std::string& t) {
-    int l = -1, r = str.size()+1, m;
+    int l = -1, r = sa.size(), m;
     while (r - l > 1) {
       m = (l + r) >> 1;
       if (is_upper(t, m)) l = m;
@@ -153,6 +155,7 @@ SA_IS
       - get_sa() -> std::vector<int>
         - SA配列を返す
 
-      - bounds(string) -> std::vector<int>
+      - bounds(string t) -> std::pair<int, int>
+        - 計算量: O(|t| log |s|)
         - SA[l, r)のprefixにstringが含まれるような(l, r)を返す
 */
