@@ -4,7 +4,7 @@ template<class Converter, int NODE_NUM = 1000000>
 class Trie {
 public:
 	using value_structure = typename Converter::value_structure;
-	using size_type = std::uint64_t;
+	using size_type = std::int64_t;
 	static constexpr size_type num_of_kinds = Converter::num_of_kinds;
 
 	struct Node {
