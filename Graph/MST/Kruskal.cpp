@@ -109,7 +109,7 @@ public:
 	Kruskal(Graph&& g) : graph(g) {}
 
 	void add_edge(size_type from, size_type to, weight_type w) {
-		graph.add_edge(from, to, edge_type(from, w));
+		graph.add_edge(from, to, edge_info(from, w));
 	}
 
 	const Graph& build() {
