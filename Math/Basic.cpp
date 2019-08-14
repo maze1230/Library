@@ -101,7 +101,7 @@ bool isPrime(::std::int64_t x){
 bool isPrimitiveRoot(::std::int64_t x, ::std::int64_t n) {
 	auto divs = divisors(n - 1);
 	for (auto d : divs) {
-		if (d == p - 1) break;
+		if (d == n - 1) break;
 		if (modpow(x, d, n) == 1) return false;
 	}
 	return true;
