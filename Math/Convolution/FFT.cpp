@@ -21,7 +21,7 @@ private:
         tmp[i] = a[idx] + zeta * a[h_bit | idx];
         zeta *= e;
       }
-      swap(a, tmp);
+      std::swap(a, tmp);
     }
     if (inv) {
       for (std::int64_t i = 0; i < n; i++) {
