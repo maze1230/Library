@@ -114,6 +114,8 @@ public:
 		r += size_;
 		propagate(l);
 		propagate(r-1);
+		build(l);
+		build(r-1);
 		for(; l < r ; l >>= 1, r >>= 1){
 			if(l&1){
 				retl = calc(retl, reflect(tree[l], lazy[l]));

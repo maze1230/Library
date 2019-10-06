@@ -77,7 +77,7 @@ public:
 
 	void gaussian_elimination() {
 		size_type last_row = 0;
-		for (size_type i = 0; i < C && last_row < R; i++) {
+		for (int i = C-1; i >= 0 && last_row < R; i--) {
 			for (size_type j = last_row; j < R; j++) {
 				if (A[j][i]) {
 					swap(A[j], A[last_row]);
