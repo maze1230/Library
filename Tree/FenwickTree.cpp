@@ -39,7 +39,7 @@ public:
 	}
 
 	value_type queryz(size_type k) const { // [0, k) 
-		return query(k+1);
+		return query(k);
 	}
 
 	size_type search(const std::function<bool(value_type)>& f) const { // Find k :[0, k) -> True, [0, k-1) -> False
