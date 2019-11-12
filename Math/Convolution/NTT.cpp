@@ -36,37 +36,13 @@ namespace ntt {
 
   private:
 
-//    static void ntt(std::vector <value_type> &a, bool inv = false) {
-//      std::int64_t n = a.size();
-//      std::vector <value_type> tmp(n);
-//      std::int64_t mask = n - 1;
-//      std::int64_t h_bit = n >> 1; // highest-bit
-//      for (std::int64_t k = 1, l = mask; l > 0; k++, l >>= 1) {
-//        value_type e = modpow(PRIM_ROOT, (MOD - 1) / (1 << k), MOD);
-//        if (inv) e = modinv(e, MOD);
-//        value_type zeta = 1;
-//
-//        for (std::int64_t i = 0; i <= mask; i++) {
-//          std::int64_t idx = ((i >> k) << (k - 1)) | (i & ((1 << (k - 1)) - 1));
-//          tmp[i] = (a[idx] + zeta * a[h_bit | idx] % MOD) % MOD;
-//          zeta = zeta * e % MOD;
-//        }
-//        swap(a, tmp);
-//      }
-//      if (inv) {
-//        std::uint64_t inv_n = modinv(n, MOD);
-//        for (std::int64_t i = 0; i < n; i++) {
-//          a[i] = a[i] * inv_n % MOD;
-//        }
-//      }
-//    }
-
     static void ntt(std::vector <value_type> &a, bool inv = false) {
       const std::int64_t n = a.size();
       std::vector <value_type> tmp(n);
       for (std::int64_t s = 1, m = n >> 1; m > 0; s <<= 1, m >>= 1) {
-        value_type zeta = 1, e = modpow(PRIM_ROOT, (MOD - 1) / m / 2, MOD);
-        if (inv) e = modinv(e, MOD);
+        value_type zeta = 1, e;
+        if (!inv) e = modpow(PRIM_ROOT, (MOD - 1) / m / 2, MOD);
+        else e = modpow(PRIM_ROOT, MOD - (MOD - 1) / m / 2 - 1, MOD);
         for (std::int64_t p = 0; p < m; p++) {
           for (std::int64_t q = 0; q < s; q++) {
             tmp[q + s * 2 * p] = (a[q + s * p] + a[q + s * (p + m)]) % MOD;
@@ -180,3 +156,5 @@ namespace ntt {
     return res;
   }
 };
+
+
