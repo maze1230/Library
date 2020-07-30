@@ -1,3 +1,3 @@
 # Library
 
-Library to solve problems of competitive programming
+Library to solve problems of competitive programming!
