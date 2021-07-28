@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 
-class manage_intervals {
+class interval_manager {
 private:
   using Interval = std::pair<int64_t, int64_t>;
 
@@ -34,7 +34,7 @@ private:
     return a.first <= b.first && b.second <= a.second;
   }
 public:
-  manage_intervals() {
+  interval_manager() {
     ivals.insert(Interval(std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::min()));
     ivals.insert(Interval(std::numeric_limits<int64_t>::min() + 1, std::numeric_limits<int64_t>::min() + 1));
     ivals.insert(Interval(std::numeric_limits<int64_t>::max(), std::numeric_limits<int64_t>::max()));
@@ -91,9 +91,9 @@ public:
     erase(ival.first, ival.second);
   }
 
-  bool contains(int64_t pos) {
+  bool contains(int64_t pos, bool right=false) {
     auto itr = ivals.lower_bound(Interval(pos, pos));
-    return _contains(*itr, pos, true) || _contains(*prev(itr), pos, true);
+    return _contains(*itr, pos, right) || _contains(*prev(itr), pos, right);
   }
 
   void dump() {
@@ -108,14 +108,14 @@ public:
 /*
 verify:
 
-class manage_intervals
+class interval_manager
 
 Features:
  区間の追加、削除を行うことができる
  [1, 5), [5, 10)と追加されたら[1, 10]にまとめる
  [1, 10)から[2, 5)が削除されたら[1, 2), [5, 10)に分割する
 
-manage_intervals
+interval_manager
 	- 提供
 		- insert(l, r) or insert(Interval)
 			- 償却計算量 O(log N)
@@ -136,7 +136,7 @@ manage_intervals
 */
 
 int main(void) {
-  manage_intervals ivals;
+  interval_manager ivals;
 
   ivals.dump();
   ivals.insert(10, 20);
@@ -155,8 +155,10 @@ int main(void) {
   ivals.dump();
   ivals.erase(-8, 13);
   ivals.dump();
-  std::cout << ivals.contains(-12) << std::endl;
-  std::cout << ivals.contains(-5) << std::endl;
-  std::cout << ivals.contains(-8) << std::endl;
-  std::cout << ivals.contains(12) << std::endl;
+  ivals.erase(-10, -8);
+  ivals.dump();
+  ivals.insert(-5, 13);
+  ivals.dump();
+  ivals.erase(-5, 22);
+  ivals.dump();
 }
