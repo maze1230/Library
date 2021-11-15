@@ -152,7 +152,7 @@ public:
 	}
 	bool operator!=(const Matrix &B) const { return !((*this) == B); }
 
-	Matrix pow(size_type k){
+	Matrix pow(std::uint64_t k){
 		assert(R == C);
 		Matrix M(Matrix::I(R));
 		while(k){
